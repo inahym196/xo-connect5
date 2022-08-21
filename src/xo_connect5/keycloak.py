@@ -1,9 +1,8 @@
 import ast
 import hashlib
 import os
-import urllib.parse as parse
 from typing import Optional
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 
 import requests
 from starlette.responses import JSONResponse, RedirectResponse
@@ -25,12 +24,13 @@ class KeyCloak:
 
     def assemble_redirect_url(self) -> RedirectResponse:
         state = hashlib.sha256(os.urandom(32)).hexdigest()
-        auth_url = self.auth_base_url + '?{}'.format(parse.urlencode({
+        params = urlencode({
             'client_id': self.app_client_id,
             'redirect_uri': self.app_redirect_url,
             'state': state,
             'response_type': 'code'
-        }))
+        })
+        auth_url = f'{self.auth_base_url}?{params}'
         response = RedirectResponse(auth_url)
         response.set_cookie(key="AUTH_STATE", value=state)
         print(response.body)
