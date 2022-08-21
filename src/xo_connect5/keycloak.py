@@ -3,6 +3,7 @@ import hashlib
 import os
 import urllib.parse as parse
 from typing import Optional
+from urllib.parse import urljoin
 
 import requests
 from starlette.responses import JSONResponse, RedirectResponse
@@ -17,8 +18,10 @@ class KeyCloak:
         self.keycloak_realm_name = keycloak_realm_name
         self.app_redirect_url = app_redirect_uri
 
-        self.auth_base_url = f'{self.keycloak_base_url}realms/{self.keycloak_realm_name}/protocol/openid-connect/auth'
-        self.token_url = f'{self.keycloak_base_url}realms/{self.keycloak_realm_name}/protocol/openid-connect/token'
+        self.auth_base_url = urljoin(self.keycloak_base_url,
+                                     f'realms/{self.keycloak_realm_name}/protocol/openid-connect/auth')
+        self.token_url = urljoin(self.keycloak_base_url,
+                                 f'realms/{self.keycloak_realm_name}/protocol/openid-connect/token')
 
     def assemble_redirect_url(self) -> RedirectResponse:
         state = hashlib.sha256(os.urandom(32)).hexdigest()
