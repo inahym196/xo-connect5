@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "xo-connect5"
+version = "0.1.0"
+description = ""
+authors = ["inahym196 <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.79.1"
+uvicorn = "^0.18.2"
+requests = "^2.28.1"
+python-dotenv = "^0.20.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+autopep8 = "^1.7.0"
+flake8 = "^5.0.4"
+
+[tool.poetry.scripts]
+start = "src.xo_connect5.main:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

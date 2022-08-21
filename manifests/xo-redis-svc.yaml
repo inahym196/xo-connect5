@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: xo-connect5
+  name: redis
+spec:
+  selector:
+    name: xo-redis-pod
+  ports:
+    - port: 6379

@@ -1,0 +1,19 @@
+version: '3'
+services:
+  web:
+    build:
+      context: ../
+      dockerfile: ./docker/node/Dockerfile
+    image: 'inahym196/xo-node:v0.0.0'
+    container_name: xo-app
+    ports:
+      - '8080:80'
+    depends_on:
+      - redis
+    volumes:
+      - '../src:/usr/app/src:ro'
+  redis:
+    image: 'redis:7.0.4'
+    container_name: xo-redis
+    expose:
+      - 6379
