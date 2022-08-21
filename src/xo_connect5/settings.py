@@ -8,7 +8,7 @@ load_dotenv(dotenv_path)
 
 APP_BASE_URL = os.environ["APP_BASE_URL"]
 APP_CLIENT_ID = os.environ["APP_CLIENT_ID"]
-APP_CLIENT_SECRET = os.getenv('APP_CLIENT_SECRET')
+APP_CLIENT_SECRET = os.environ['APP_CLIENT_SECRET']
 APP_REDIRECT_URI = os.environ['APP_REDIRECT_URI']
 
 KEYCLOAK_REALM_NAME = os.environ['KEYCLOAK_REALM_NAME']
