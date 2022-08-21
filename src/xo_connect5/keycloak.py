@@ -1,7 +1,6 @@
 import ast
 import hashlib
 import os
-from typing import Optional
 from urllib.parse import urlencode, urljoin
 
 import requests
@@ -9,7 +8,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 
 class KeyCloak:
-    def __init__(self, app_base_url: str, keycloak_base_url: str, app_client_id: str, app_client_secret: Optional[str], keycloak_realm_name: str, app_redirect_uri: str) -> None:
+    def __init__(self, app_base_url: str, keycloak_base_url: str, app_client_id: str, app_client_secret: str, keycloak_realm_name: str, app_redirect_uri: str) -> None:
         self.app_base_url = app_base_url
         self.keycloak_base_url = keycloak_base_url
         self.app_client_id = app_client_id
@@ -37,7 +36,7 @@ class KeyCloak:
         return response
 
     def retrieve_token(self, code: str):
-        params: dict[str, Optional[str]] = {
+        params: dict[str, str] = {
             'client_id': self.app_client_id,
             'client_secret': self.app_client_secret,
             'grant_type': 'authorization_code',
