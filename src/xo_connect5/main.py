@@ -1,3 +1,4 @@
+
 import uvicorn
 from fastapi import FastAPI
 from src.xo_connect5 import settings
@@ -20,7 +21,9 @@ app = FastAPI()
 
 @app.get('/auth/login')
 async def login() -> RedirectResponse:
-    response = keycloak.assemble_redirect_url()
+    url, state = keycloak.assemble_redirect_url()
+    response = RedirectResponse(url)
+    response.set_cookie(key='AUTH_STATE', value=state)
     return response
 
 
@@ -29,7 +32,7 @@ async def auth(request: Request, code: str, state: str) -> JSONResponse:
     if state != request.cookies.get("AUTH_STATE"):
         return JSONResponse(content={"error": "state_verification_failed"}, status_code=401)
     token = keycloak.retrieve_token(code)
-    return token
+    return JSONResponse(content=token)
 
 
 def main():

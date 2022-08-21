@@ -1,10 +1,8 @@
 import ast
-import hashlib
-import os
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urljoin
 
 import requests
-from starlette.responses import JSONResponse, RedirectResponse
+from authlib.integrations.requests_client import OAuth2Session
 
 
 class KeyCloak:
@@ -16,26 +14,23 @@ class KeyCloak:
         self.keycloak_realm_name = keycloak_realm_name
         self.app_redirect_url = app_redirect_uri
 
-        self.auth_base_url = urljoin(self.keycloak_base_url,
-                                     f'realms/{self.keycloak_realm_name}/protocol/openid-connect/auth')
+        self.client = OAuth2Session(
+            client_id=self.app_client_id,
+            client_secret=self.app_client_secret,
+            scope='profile',
+            redirect_uri=self.app_redirect_url
+        )
+
+        self.auth_url = urljoin(self.keycloak_base_url,
+                                f'realms/{self.keycloak_realm_name}/protocol/openid-connect/auth')
         self.token_url = urljoin(self.keycloak_base_url,
                                  f'realms/{self.keycloak_realm_name}/protocol/openid-connect/token')
 
-    def assemble_redirect_url(self) -> RedirectResponse:
-        state = hashlib.sha256(os.urandom(32)).hexdigest()
-        params = urlencode({
-            'client_id': self.app_client_id,
-            'redirect_uri': self.app_redirect_url,
-            'state': state,
-            'response_type': 'code'
-        })
-        auth_url = f'{self.auth_base_url}?{params}'
-        response = RedirectResponse(auth_url)
-        response.set_cookie(key="AUTH_STATE", value=state)
-        print(response.body)
-        return response
+    def assemble_redirect_url(self) -> tuple[str, str]:
+        uri, state = self.client.create_authorization_url(url=self.auth_url)
+        return uri, state
 
-    def retrieve_token(self, code: str):
+    def retrieve_token(self, code: str) -> str:
         params: dict[str, str] = {
             'client_id': self.app_client_id,
             'client_secret': self.app_client_secret,
@@ -44,5 +39,5 @@ class KeyCloak:
             'code': code
         }
         post_content: str = requests.post(self.token_url, params, verify=False).content.decode('utf-8')
-        token_response = JSONResponse(content=ast.literal_eval(post_content))
-        return token_response
+        token = ast.literal_eval(post_content)
+        return token
