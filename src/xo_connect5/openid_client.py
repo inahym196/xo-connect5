@@ -6,13 +6,13 @@ from authlib.integrations.requests_client import OAuth2Session
 from starlette.responses import RedirectResponse
 
 
-class KeyCloak:
-    def __init__(self, app_base_url: str, keycloak_base_url: str, app_client_id: str, app_client_secret: str, keycloak_realm_name: str, app_redirect_uri: str) -> None:
+class OpenIDClient:
+    def __init__(self, app_base_url: str, auth_base_url: str, app_client_id: str, app_client_secret: str, auth_realm_name: str, app_redirect_uri: str) -> None:
         self.app_base_url = app_base_url
-        self.keycloak_base_url = keycloak_base_url
+        self.auth_base_url = auth_base_url
         self.app_client_id = app_client_id
         self.app_client_secret = app_client_secret
-        self.keycloak_realm_name = keycloak_realm_name
+        self.auth_realm_name = auth_realm_name
         self.app_redirect_url = app_redirect_uri
 
         self.client = OAuth2Session(
@@ -22,10 +22,10 @@ class KeyCloak:
             redirect_uri=self.app_redirect_url
         )
 
-        self.auth_url = urljoin(self.keycloak_base_url,
-                                f'realms/{self.keycloak_realm_name}/protocol/openid-connect/auth')
-        self.token_url = urljoin(self.keycloak_base_url,
-                                 f'realms/{self.keycloak_realm_name}/protocol/openid-connect/token')
+        self.auth_url = urljoin(self.auth_base_url,
+                                f'realms/{self.auth_realm_name}/protocol/openid-connect/auth')
+        self.token_url = urljoin(self.auth_base_url,
+                                 f'realms/{self.auth_realm_name}/protocol/openid-connect/token')
 
     def create_redirect_response(self) -> RedirectResponse:
         uri, state = self.client.create_authorization_url(url=self.auth_url)
