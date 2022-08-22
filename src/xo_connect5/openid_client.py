@@ -1,6 +1,5 @@
 import ast
 import logging
-from urllib.parse import urljoin
 
 import requests
 from authlib.integrations.requests_client import OAuth2Session
@@ -10,7 +9,7 @@ logger = logging.getLogger('uvicorn').getChild(__name__)
 
 
 class OpenIDClient:
-    def __init__(self, auth_base_url: str, app_client_id: str, app_client_secret: str, auth_realm_name: str, app_redirect_uri: str) -> None:
+    def __init__(self, app_client_id: str, app_client_secret: str, auth_realm_name: str, app_redirect_uri: str, auth_issuer_url: str) -> None:
         self.app_client_id = app_client_id
         self.app_client_secret = app_client_secret
         self.app_redirect_uri = app_redirect_uri
@@ -22,10 +21,11 @@ class OpenIDClient:
             redirect_uri=self.app_redirect_uri
         )
 
-        self.auth_endpoint = urljoin(auth_base_url,
-                                     f'realms/{auth_realm_name}/protocol/openid-connect/auth')
-        self.token_endpoint = urljoin(auth_base_url,
-                                      f'realms/{auth_realm_name}/protocol/openid-connect/token')
+        meta_data_url = f'{auth_issuer_url}/realms/{auth_realm_name}/.well-known/openid-configuration'
+        meta_data = requests.get(url=meta_data_url).json()
+
+        self.auth_endpoint = meta_data['authorization_endpoint']
+        self.token_endpoint = meta_data['token_endpoint']
 
     def create_redirect_response(self) -> RedirectResponse:
         uri, state = self.client.create_authorization_url(url=self.auth_endpoint)

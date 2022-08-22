@@ -11,11 +11,11 @@ from starlette.responses import JSONResponse, RedirectResponse
 logger = logging.getLogger('uvicorn')
 
 openid_client = OpenIDClient(
-    auth_base_url=settings.AUTH_SERVER_BASE_URL,
     app_client_id=settings.APP_CLIENT_ID,
     app_client_secret=settings.APP_CLIENT_SECRET,
+    app_redirect_uri=settings.APP_REDIRECT_URI,
+    auth_issuer_url=settings.AUTH_ISSUER_URL,
     auth_realm_name=settings.AUTH_SERVER_REALM_NAME,
-    app_redirect_uri=settings.APP_REDIRECT_URI
 )
 
 
