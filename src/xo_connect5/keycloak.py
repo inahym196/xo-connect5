@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 import requests
 from authlib.integrations.requests_client import OAuth2Session
+from starlette.responses import RedirectResponse
 
 
 class KeyCloak:
@@ -26,9 +27,11 @@ class KeyCloak:
         self.token_url = urljoin(self.keycloak_base_url,
                                  f'realms/{self.keycloak_realm_name}/protocol/openid-connect/token')
 
-    def assemble_redirect_url(self) -> tuple[str, str]:
+    def create_redirect_response(self) -> RedirectResponse:
         uri, state = self.client.create_authorization_url(url=self.auth_url)
-        return uri, state
+        response = RedirectResponse(uri)
+        response.set_cookie(key='AUTH_STATE', value=state)
+        return response
 
     def retrieve_token(self, code: str) -> str:
         params: dict[str, str] = {

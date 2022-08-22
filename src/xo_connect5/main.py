@@ -21,9 +21,7 @@ app = FastAPI()
 
 @app.get('/auth/login')
 async def login() -> RedirectResponse:
-    url, state = keycloak.assemble_redirect_url()
-    response = RedirectResponse(url)
-    response.set_cookie(key='AUTH_STATE', value=state)
+    response = keycloak.create_redirect_response()
     return response
 
 
