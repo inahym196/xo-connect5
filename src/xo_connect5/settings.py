@@ -6,7 +6,6 @@ dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(verbose=True)
 load_dotenv(dotenv_path)
 
-APP_BASE_URL = os.environ["APP_BASE_URL"]
 APP_CLIENT_ID = os.environ["APP_CLIENT_ID"]
 APP_CLIENT_SECRET = os.environ['APP_CLIENT_SECRET']
 APP_REDIRECT_URI = os.environ['APP_REDIRECT_URI']

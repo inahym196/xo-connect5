@@ -1,4 +1,6 @@
 
+import logging
+
 import uvicorn
 from fastapi import FastAPI
 from src.xo_connect5 import settings
@@ -6,8 +8,9 @@ from src.xo_connect5.openid_client import OpenIDClient
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse
 
+logger = logging.getLogger('uvicorn')
+
 openid_client = OpenIDClient(
-    app_base_url=settings.APP_BASE_URL,
     auth_base_url=settings.AUTH_SERVER_BASE_URL,
     app_client_id=settings.APP_CLIENT_ID,
     app_client_secret=settings.APP_CLIENT_SECRET,
