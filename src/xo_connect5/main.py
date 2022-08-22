@@ -18,7 +18,6 @@ openid_client = OpenIDClient(
     auth_realm_name=settings.AUTH_SERVER_REALM_NAME,
 )
 
-
 app = FastAPI()
 
 
@@ -32,7 +31,7 @@ async def login() -> RedirectResponse:
 async def auth(request: Request, code: str, state: str) -> JSONResponse:
     if state != request.cookies.get("AUTH_STATE"):
         return JSONResponse(content={"error": "state_verification_failed"}, status_code=401)
-    token = openid_client.retrieve_token(code)
+    token = openid_client.retrieve_token(code, state)
     return JSONResponse(content=token)
 
 
