@@ -1,6 +1,7 @@
 
 import logging
 
+import requests
 import uvicorn
 from fastapi import FastAPI
 from src.xo_connect5 import settings
@@ -23,7 +24,9 @@ app = FastAPI()
 
 @app.get('/auth/login')
 async def login() -> RedirectResponse:
-    response = openid_client.create_redirect_response()
+    uri, state = openid_client.session.create_authorization_url(url=openid_client.auth_endpoint)
+    response = RedirectResponse(uri)
+    response.set_cookie(key='AUTH_STATE', value=state)
     return response
 
 
@@ -31,10 +34,16 @@ async def login() -> RedirectResponse:
 async def auth(request: Request, code: str, state: str) -> JSONResponse:
     if state != request.cookies.get("AUTH_STATE"):
         return JSONResponse(content={"error": "state_verification_failed"}, status_code=401)
-    token = openid_client.retrieve_token(code, state)
+    token: dict[str, str] = openid_client.session.fetch_access_token(code=code, state=state)
+    access_token = token['access_token']
+    res = requests.get(url=openid_client.userinfo_endpoint,
+                       headers={'Authorization': f'Bearer {access_token}'}
+                       )
+    logger.info(res.json())
     return JSONResponse(content=token)
 
 
+@ app.get('/userinfo')
 def main():
     uvicorn.run(app)
 
