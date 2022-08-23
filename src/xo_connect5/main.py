@@ -43,7 +43,6 @@ async def auth(request: Request, code: str, state: str) -> JSONResponse:
     return JSONResponse(content=token)
 
 
-@ app.get('/userinfo')
 def main():
     uvicorn.run(app)
 
