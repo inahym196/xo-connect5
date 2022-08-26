@@ -1,9 +1,9 @@
-
 import logging
 
+import numpy
 import uvicorn
 from fastapi import FastAPI
-from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 logger = logging.getLogger('uvicorn')
 
@@ -11,14 +11,17 @@ logger = logging.getLogger('uvicorn')
 app = FastAPI()
 
 
-@app.get('/auth/login')
-async def login():
-    return
+class Board:
+    def __init__(self) -> None:
+        self.pieses = numpy.zeros((10, 10), dtype=int).tolist()
 
 
-@app.get("/auth/callback")
-async def auth(request: Request, code: str, state: str):
-    return
+board = Board()
+
+
+@app.get('/')
+async def init_piese() -> JSONResponse:
+    return JSONResponse({'pieses': board.pieses})
 
 
 def main():
