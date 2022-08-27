@@ -21,7 +21,6 @@ class RedisClient:
         hget_value = self.client.hget(name='order', key=user)
         if hget_value:
             return hget_value.decode()
-        return
 
 
 class Point(BaseModel):
@@ -44,11 +43,6 @@ class Piece(BaseModel):
 class OrderType(str, Enum):
     FIRST = 'first'
     DRAW = 'draw'
-
-
-class Player(BaseModel):
-    name: str
-    order: OrderType
 
 
 app = FastAPI()
