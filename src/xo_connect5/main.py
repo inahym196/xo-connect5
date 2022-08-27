@@ -2,9 +2,8 @@ import logging
 from enum import Enum
 
 import uvicorn
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI
 from pydantic import BaseModel
-from src.xo_connect5.exceptions import APIError
 from starlette.responses import JSONResponse
 
 LENGTH_OF_SIDE = 10
@@ -44,11 +43,6 @@ class Board:
 
 
 board = Board()
-
-
-@app.exception_handler(APIError)
-async def APIExceptionHandler(request: Request, exception: APIError):
-    return JSONResponse(status_code=exception.status_code, content=exception.detail)
 
 
 @app.get('/pieces')
