@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from redis import StrictRedis
 from starlette.responses import JSONResponse
@@ -81,9 +81,11 @@ async def init_piece() -> JSONResponse:
 async def put_piece(user: str, point: Point = Depends()) -> JSONResponse:
     redis_client = RedisClient()
     order = await redis_client.get_user_order(user)
-    logger.info((order))
-    if order and order in [OrderType.DRAW, OrderType.FIRST]:
+    if not order:
+        raise HTTPException(status_code=404, detail='User not found')
+    if order in [OrderType.DRAW, OrderType.FIRST]:
         board.put_piece(order=order, point=point)
+
     return JSONResponse({'pieces': board.pieces})
 
 
