@@ -3,6 +3,7 @@ from typing import Literal
 
 import uvicorn
 from fastapi import Depends, FastAPI, Request
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from src.xo_connect5.exceptions import APIError
 from starlette.responses import JSONResponse
@@ -22,7 +23,8 @@ Piece: TypeAlias = Literal['xp', 'op', 'xg', 'og', '_']
 
 
 class PutPieceParam(BaseModel):
-    point: Point
+    raw: int
+    column: int
     piece: Piece
 
 
@@ -35,8 +37,8 @@ class Board:
         self.pieces = [[none_piece for j in range(LENGTH_OF_SIDE)] for i in range(LENGTH_OF_SIDE)]
 
     def put_piece(self, put_piece_param: PutPieceParam):
-        raw_point = put_piece_param.point.raw
-        column_point = put_piece_param.point.column
+        raw_point = put_piece_param.raw
+        column_point = put_piece_param.column
         self.pieces[column_point][raw_point] = put_piece_param.piece
         return
 
@@ -50,16 +52,22 @@ async def APIExceptionHandler(request: Request, exception: APIError):
 
 
 @app.get('/')
+@app.put('/')
+async def redirect() -> RedirectResponse:
+    return RedirectResponse(url='/pieces')
+
+
+@app.get('/pieces')
 async def init_piece() -> JSONResponse:
     return JSONResponse({'pieces': board.pieces})
 
 
-async def put_parameters(piece: str, raw: int, column: int):
-    return PutPieceParam(point=Point(raw=raw, column=column), piece=piece)
+async def put_piece_param(piece: Piece, raw: int, column: int):
+    return PutPieceParam(piece=piece, raw=raw, column=column)
 
 
-@app.post('/put-piece')
-async def put_piece(put_piece_param: PutPieceParam = Depends(PutPieceParam)) -> JSONResponse:
+@app.put('/pieces')
+async def put_piece(put_piece_param: PutPieceParam = Depends()) -> JSONResponse:
     board.put_piece(put_piece_param)
     return JSONResponse({'pieces': board.pieces})
 
