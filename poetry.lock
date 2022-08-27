@@ -151,14 +151,6 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "numpy"
-version = "1.23.2"
-description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -359,7 +351,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e9ae779611b953275acc89fa0be5c79ecfed93497158a124762ba0dd1a31a4f6"
+content-hash = "506dd75ce4a1ab789dd4912ce0e9f91a951ff40bd58993c1949f4354f0873989"
 
 [metadata.files]
 anyio = []
@@ -382,7 +374,6 @@ idna = [
 ]
 mccabe = []
 more-itertools = []
-numpy = []
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
