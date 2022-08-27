@@ -1,13 +1,11 @@
 import logging
-from typing import Literal
+from enum import Enum
 
 import uvicorn
 from fastapi import Depends, FastAPI, Request
-from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from src.xo_connect5.exceptions import APIError
 from starlette.responses import JSONResponse
-from typing_extensions import TypeAlias
 
 LENGTH_OF_SIDE = 10
 
@@ -19,13 +17,16 @@ class Point(BaseModel):
     column: int
 
 
-Piece: TypeAlias = Literal['xp', 'op', 'xg', 'og', '_']
+class PieceType(str, Enum):
+    XP = 'xp'
+    OP = 'op'
+    XG = 'xg'
+    OG = 'og'
+    NONE = '_'
 
 
-class PutPieceParam(BaseModel):
-    raw: int
-    column: int
-    piece: Piece
+class Piece(BaseModel):
+    type: PieceType
 
 
 app = FastAPI()
@@ -33,14 +34,13 @@ app = FastAPI()
 
 class Board:
     def __init__(self) -> None:
-        none_piece: Piece = '_'
+        none_piece = PieceType.NONE
         self.pieces = [[none_piece for j in range(LENGTH_OF_SIDE)] for i in range(LENGTH_OF_SIDE)]
 
-    def put_piece(self, put_piece_param: PutPieceParam):
-        raw_point = put_piece_param.raw
-        column_point = put_piece_param.column
-        self.pieces[column_point][raw_point] = put_piece_param.piece
-        return
+    def put_piece(self, piece: Piece, point: Point):
+        raw = point.raw
+        column = point.column
+        self.pieces[column][raw] = piece.type
 
 
 board = Board()
@@ -51,24 +51,18 @@ async def APIExceptionHandler(request: Request, exception: APIError):
     return JSONResponse(status_code=exception.status_code, content=exception.detail)
 
 
-@app.get('/')
-@app.put('/')
-async def redirect() -> RedirectResponse:
-    return RedirectResponse(url='/pieces')
-
-
 @app.get('/pieces')
 async def init_piece() -> JSONResponse:
     return JSONResponse({'pieces': board.pieces})
 
 
-async def put_piece_param(piece: Piece, raw: int, column: int):
-    return PutPieceParam(piece=piece, raw=raw, column=column)
+async def point(raw: int, column: int) -> Point:
+    return Point(raw=raw, column=column)
 
 
 @app.put('/pieces')
-async def put_piece(put_piece_param: PutPieceParam = Depends()) -> JSONResponse:
-    board.put_piece(put_piece_param)
+async def put_piece(piece: Piece, point: Point = Depends()) -> JSONResponse:
+    board.put_piece(piece=piece, point=point)
     return JSONResponse({'pieces': board.pieces})
 
 
