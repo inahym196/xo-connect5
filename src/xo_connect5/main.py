@@ -56,10 +56,6 @@ async def init_piece() -> JSONResponse:
     return JSONResponse({'pieces': board.pieces})
 
 
-async def point(raw: int, column: int) -> Point:
-    return Point(raw=raw, column=column)
-
-
 @app.put('/pieces')
 async def put_piece(piece: Piece, point: Point = Depends()) -> JSONResponse:
     board.put_piece(piece=piece, point=point)
