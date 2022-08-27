@@ -13,16 +13,6 @@ LENGTH_OF_SIDE = 10
 logger = logging.getLogger('uvicorn')
 
 
-class RedisClient:
-    def __init__(self) -> None:
-        self.client = StrictRedis()
-
-    async def get_user_order(self, user: str) -> Optional[str]:
-        hget_value = self.client.hget(name='order', key=user)
-        if hget_value:
-            return hget_value.decode()
-
-
 class Point(BaseModel):
     raw: int
     column: int
@@ -43,6 +33,20 @@ class Piece(BaseModel):
 class OrderType(str, Enum):
     FIRST = 'first'
     DRAW = 'draw'
+
+
+class RedisClient:
+    def __init__(self) -> None:
+        self.client = StrictRedis()
+
+    async def get_user_order(self, user: str) -> Optional[OrderType]:
+        hget_bytes = self.client.hget(name='order', key=user)
+        if not hget_bytes:
+            return
+
+        order = hget_bytes.decode()
+        if order in [OrderType.FIRST, OrderType.DRAW]:
+            return order
 
 
 app = FastAPI()
@@ -77,8 +81,7 @@ async def put_piece(user: str, point: Point = Depends()) -> JSONResponse:
     order = await redis_client.get_user_order(user)
     if not order:
         raise HTTPException(status_code=404, detail='User not found')
-    if order in [OrderType.DRAW, OrderType.FIRST]:
-        board.put_piece(order=order, point=point)
+    board.put_piece(order=order, point=point)
 
     return JSONResponse({'pieces': board.pieces})
 
