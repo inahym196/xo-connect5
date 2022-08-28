@@ -1,10 +1,9 @@
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel
 from xo_connect5.models.pieces import PieceType
-from xo_connect5.models.users import User
+from xo_connect5.models.users import Players
 
 
 class BoardStatus(str, Enum):
@@ -19,7 +18,7 @@ class Board(BaseModel):
     pieces: list[list[PieceType]]
     round: int = 0
     status: BoardStatus = BoardStatus.NOT_READY
-    players: Optional[tuple[User, User]] = None
+    players = Players()
 
 
 class Boards(BaseModel):
