@@ -1,33 +1,42 @@
 from redis import StrictRedis
-from xo_connect5.models.users import OrderType, User, UserInDB
+from xo_connect5.models.users import Players, User
+
+
+class RedisClientError(Exception):
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
 
 
 class RedisClient:
     def __init__(self) -> None:
         self._client = StrictRedis()
 
-    async def get_order_from_db(self, user: User) -> OrderType:
-        order_bytes = self._client.hget(name='order', key=user.name)
-        if not order_bytes:
-            return OrderType.NONE
+    async def init_players(self, board_id: int) -> None:
+        result = self._client.hset(name=f'board{board_id}', key='players', value='_:_')
+        if result != 0:
+            raise RedisClientError(detail='cannot init players store')
 
-        order = order_bytes.decode()
-        if order not in [OrderType.FIRST, OrderType.DRAW]:
-            order = OrderType.NONE
-        return order
+    async def get_players(self, board_id: int) -> Players:
+        players_bytes = self._client.hget(name=f'board{board_id}', key='players')
+        if not players_bytes:
+            raise RedisClientError(detail=f'board{board_id}-players key is not exist')
 
-    async def get_user_in_db(self, user: User) -> UserInDB:
-        order = await self.get_order_from_db(user)
-        return UserInDB(name=user.name, order=order)
+        split_players = players_bytes.decode().split(':')
+        if len(split_players) != 2:
+            raise RedisClientError(detail=f'board{board_id}-players key cannot parse')
+
+        first_username, draw_username = split_players[0], split_players[1]
+        if first_username == '_' and draw_username == '_':
+            return Players(first=None, draw=None)
+        return Players(first=User(name=first_username), draw=User(name=draw_username))
 
 
-async def get_order_from_db(user: User) -> OrderType:
+async def init_players(board_id: int) -> None:
     redis_client = RedisClient()
-    order = await redis_client.get_order_from_db(user)
-    return order
+    await redis_client.init_players(board_id)
 
 
-async def get_user_in_db(user: User) -> UserInDB:
+async def get_players_from_db(board_id: int) -> Players:
     redis_client = RedisClient()
-    user_in_db = await redis_client.get_user_in_db(user)
-    return user_in_db
+    players = await redis_client.get_players(board_id)
+    return players

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import xo_connect5.core.main as core
 from fastapi import APIRouter, Depends
 from starlette.exceptions import HTTPException
@@ -5,8 +7,8 @@ from xo_connect5.core.main import ApplicationError
 from xo_connect5.models import Point
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.pieces import Pieces
-from xo_connect5.models.users import OrderType, Players
-from xo_connect5.redis import get_order_from_db
+from xo_connect5.models.users import OrderType, Players, User
+from xo_connect5.redis import get_players_from_db
 from xo_connect5.routers.boards.boards import boards
 
 router = APIRouter()
@@ -35,16 +37,29 @@ async def get_pieces(board: Board = Depends(_get_board)) -> Pieces:
     return board.pieces
 
 
+def get_user_order(user: User, players: Players) -> Optional[OrderType]:
+    if user == players.first:
+        order = OrderType.FIRST
+    elif user == players.draw:
+        order = OrderType.DRAW
+    else:
+        return
+    return order
+
+
 @router.put('/pieces')
 async def put_piece(
-    order: OrderType = Depends(get_order_from_db),
-    board: Board = Depends(_get_board),
-    point: Point = Depends()
+        user: User,
+        players: Players = Depends(get_players_from_db),
+        board: Board = Depends(_get_board),
+        point: Point = Depends()
 ) -> Board:
-    if order == OrderType.NONE:
+    order = get_user_order(user, players)
+    if not order:
         raise HTTPException(status_code=401)
+
     try:
-        core.put_piece(board=board, order=order, point=point)
+        core.put_piece(board, order, point)
     except ApplicationError as e:
         raise HTTPException(status_code=500, detail=e.detail)
     except Exception:
@@ -53,10 +68,16 @@ async def put_piece(
 
 
 @router.get('/players', response_model=Players)
-async def get_players(board: Board = Depends(_get_board)) -> Players:
-    return board.players
+async def get_players(players: Players = Depends(get_players_from_db)) -> Players:
+    return players
 
 
-@router.put('/players', response_model=Players)
-async def join_player(board: Board = Depends(_get_board)) -> Players:
+@router.patch('/players', response_model=Players)
+async def join_player(
+        user: User,
+        order: OrderType,
+        players: Players = Depends(get_players_from_db),
+        board: Board = Depends(_get_board),
+) -> Players:
+
     return board.players
