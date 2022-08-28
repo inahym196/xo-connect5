@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
-from src.xo_connect5.board import Board, PutPieceParam
+from src.xo_connect5.board import Board, BoardError, PutPieceParam
 from starlette.responses import JSONResponse
 
 router = APIRouter()
@@ -15,8 +15,8 @@ async def init_piece() -> JSONResponse:
 
 @router.put('/pieces')
 async def put_piece(put_piece_param: PutPieceParam = Depends()) -> JSONResponse:
-    if not put_piece_param.piece_type:
-        raise HTTPException(status_code=404)
-    board.put_piece(put_piece_param)
-
+    try:
+        board.put_piece(put_piece_param)
+    except BoardError as e:
+        raise HTTPException(status_code=404, detail=e.detail)
     return JSONResponse({'pieces': board.pieces})
