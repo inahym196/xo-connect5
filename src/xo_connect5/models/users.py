@@ -1,5 +1,6 @@
 
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -17,3 +18,8 @@ class User(BaseModel):
 class UserInDB(BaseModel):
     name: str
     order: OrderType = OrderType.NONE
+
+
+class Players(BaseModel):
+    first: Optional[User] = None
+    draw: Optional[User] = None
