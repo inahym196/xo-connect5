@@ -5,8 +5,8 @@ from xo_connect5.core.main import ApplicationError
 from xo_connect5.models import Point
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.pieces import Pieces
-from xo_connect5.models.users import OrderType, User
-from xo_connect5.redis import RedisClient
+from xo_connect5.models.users import OrderType, Players
+from xo_connect5.redis import get_order_from_db
 from xo_connect5.routers.boards.boards import boards
 
 router = APIRouter()
@@ -35,12 +35,6 @@ async def get_pieces(board: Board = Depends(_get_board)) -> Pieces:
     return board.pieces
 
 
-async def get_order_from_db(user: User) -> OrderType:
-    redis_client = RedisClient()
-    order = await redis_client.get_order_from_db(user)
-    return order
-
-
 @router.put('/pieces')
 async def put_piece(
     order: OrderType = Depends(get_order_from_db),
@@ -56,3 +50,13 @@ async def put_piece(
     except Exception:
         raise HTTPException(status_code=500)
     return board
+
+
+@router.get('/players', response_model=Players)
+async def get_players(board: Board = Depends(_get_board)) -> Players:
+    return board.players
+
+
+@router.put('/players', response_model=Players)
+async def join_player(board: Board = Depends(_get_board)) -> Players:
+    return board.players

@@ -19,3 +19,15 @@ class RedisClient:
     async def get_user_in_db(self, user: User) -> UserInDB:
         order = await self.get_order_from_db(user)
         return UserInDB(name=user.name, order=order)
+
+
+async def get_order_from_db(user: User) -> OrderType:
+    redis_client = RedisClient()
+    order = await redis_client.get_order_from_db(user)
+    return order
+
+
+async def get_user_in_db(user: User) -> UserInDB:
+    redis_client = RedisClient()
+    user_in_db = await redis_client.get_user_in_db(user)
+    return user_in_db
