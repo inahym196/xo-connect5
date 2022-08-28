@@ -1,42 +1,19 @@
 
-from enum import Enum
 from typing import Optional
 
 from fastapi import Depends
-from pydantic import BaseModel, Field
 from redis import StrictRedis
 
-LENGTH_OF_SIDE = 10
-
-
-class PieceType(str, Enum):
-    XP = 'xp'
-    OP = 'op'
-    XG = 'xg'
-    OG = 'og'
-    NONE = '_'
-
-
-class Piece(BaseModel):
-    type: PieceType
-
-
-class OrderType(str, Enum):
-    FIRST = 'first'
-    DRAW = 'draw'
-
-
-class Point(BaseModel):
-    raw: int = Field(ge=0, lt=LENGTH_OF_SIDE)
-    column: int = Field(ge=0, lt=LENGTH_OF_SIDE)
+from xo_connect5.models import (LENGTH_OF_SIDE, BoardStatus, OrderType,
+                                PieceType, Point, User)
 
 
 class RedisClient:
     def __init__(self) -> None:
         self.client = StrictRedis()
 
-    async def get_user_order(self, user: str) -> Optional[OrderType]:
-        hget_bytes = self.client.hget(name='order', key=user)
+    async def get_user_order(self, user: User) -> Optional[OrderType]:
+        hget_bytes = self.client.hget(name='order', key=user.name)
         if not hget_bytes:
             return
 
@@ -47,7 +24,7 @@ class RedisClient:
         return order
 
 
-async def get_user_order(user: str) -> Optional[OrderType]:
+async def get_user_order(user: User) -> Optional[OrderType]:
     redis_client = RedisClient()
     order = await redis_client.get_user_order(user)
     return order
@@ -80,6 +57,7 @@ class Board:
         none_piece = PieceType.NONE
         self.pieces = [[none_piece for j in range(LENGTH_OF_SIDE)] for i in range(LENGTH_OF_SIDE)]
         self.turn = 0
+        self.status = BoardStatus.NOT_READY
 
     def put_piece(self, put_piece_param: PutPieceParam) -> None:
         raw = put_piece_param.point.raw
