@@ -8,6 +8,7 @@ from xo_connect5.models.users import Players
 
 class BoardStatus(str, Enum):
     NOT_READY = 'not ready'
+    WAITING = 'waiting'
     READY = 'ready'
     STARTING = 'starting'
     END = 'end'
