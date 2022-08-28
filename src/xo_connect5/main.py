@@ -2,18 +2,13 @@ import logging
 
 import uvicorn
 from fastapi import FastAPI
-from src.xo_connect5.routers import pieces
-from starlette.responses import JSONResponse
+
+from xo_connect5.routers import boards
 
 logger = logging.getLogger('uvicorn')
 
 app = FastAPI()
-app.include_router(pieces.router)
-
-
-@app.get('/turn')
-async def get_turn() -> JSONResponse:
-    return JSONResponse(content=pieces.board.turn)
+app.include_router(router=boards.router, prefix='/api/v1/boards')
 
 
 def main():
