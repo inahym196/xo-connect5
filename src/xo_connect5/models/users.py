@@ -11,13 +11,17 @@ class OrderType(str, Enum):
     NONE = 'none'
 
 
+class Order(BaseModel):
+    type: OrderType = OrderType.NONE
+
+
 class User(BaseModel):
     name: str
 
 
 class Player(BaseModel):
     user: User
-    order: OrderType = OrderType.NONE
+    order: Order
 
 
 class Players(BaseModel):

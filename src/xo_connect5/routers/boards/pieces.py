@@ -30,7 +30,7 @@ async def put_piece(player: Player = Depends(), point: Point = Depends(), board:
         raise HTTPException(status_code=400, detail='Player is not on this board')
 
     try:
-        core.put_piece(board, order, point)
+        core.put_piece(board, order.type, point)
     except ApplicationError as e:
         raise HTTPException(status_code=500, detail=e.detail)
     except Exception:
