@@ -1,6 +1,5 @@
 
 from fastapi import APIRouter, Depends
-from starlette.exceptions import HTTPException
 from xo_connect5.exceptions.players import PlayersError
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.users import Order, OrderType, Players, User
@@ -44,7 +43,7 @@ async def get_players(board: Board = Depends(_get_board)) -> Players:
 async def join_player(param: PlayersParam = Depends()) -> Players:
     join_user, order, board = param.user, param.order, param.board
     if param.exists_user_in_board():
-        raise HTTPException(status_code=409, detail='Other player is on board')
+        raise PlayersError(status_code=409, detail='Other player is on board')
 
     board.players = board.players.copy(update={order.type: join_user})
     return board.players
