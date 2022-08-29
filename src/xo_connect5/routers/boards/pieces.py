@@ -30,9 +30,7 @@ def get_user_order(user: User, players: Players) -> Optional[OrderType]:
 
 
 @router.patch('/')
-async def put_piece(user: User,
-                    board: Board = Depends(_get_board),
-                    point: Point = Depends()) -> Board:
+async def put_piece(user: User, point: Point = Depends(), board: Board = Depends(_get_board)) -> Board:
     order = get_user_order(user, board.players)
     if not order:
         raise HTTPException(status_code=401)

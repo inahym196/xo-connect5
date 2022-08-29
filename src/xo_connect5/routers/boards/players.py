@@ -24,8 +24,11 @@ async def join_player(order: OrderType, param: PlayersParam = Depends()) -> Play
     join_player, players = param.player, param.board.players
     if order == OrderType.NONE:
         raise HTTPException(status_code=400, detail='request order is none')
-    elif players.dict().get(order):
+
+    sitting_player_dict = players.dict().get(order)
+    if sitting_player_dict:
         raise HTTPException(status_code=409, detail='There is already other player')
+
     param.board.players = players.copy(update={order: join_player}, deep=True)
     return param.board.players
 
