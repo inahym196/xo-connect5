@@ -2,13 +2,18 @@
 from fastapi import APIRouter
 from starlette.exceptions import HTTPException
 from xo_connect5.models.boards import Board, Boards
+from xo_connect5.models.users import OrderType, Player, Players, User
 
 router = APIRouter()
 
 boards = Boards()
 
 # dev-init
-boards.items.append(Board(id=0))
+_first_player = Player(user=User(name='first'), order=OrderType.FIRST)
+_draw_player = Player(user=User(name='draw'), order=OrderType.DRAW)
+_players = Players(first=_first_player, draw=_draw_player)
+_board = Board(id=0, players=_players)
+boards.items.append(_board)
 
 
 @router.get('/')
