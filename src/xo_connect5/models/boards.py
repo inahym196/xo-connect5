@@ -7,9 +7,7 @@ from xo_connect5.models.users import Players
 
 
 class BoardStatus(str, Enum):
-    NOT_READY = 'not ready'
     WAITING = 'waiting'
-    READY = 'ready'
     STARTING = 'starting'
     END = 'end'
 
@@ -18,7 +16,7 @@ class Board(BaseModel):
     id: int
     pieces: Pieces = [[PieceType.NONE for j in range(10)] for i in range(10)]
     round: int = 0
-    status: BoardStatus = BoardStatus.NOT_READY
+    status: BoardStatus = BoardStatus.WAITING
     players: Players = Players()
 
 
