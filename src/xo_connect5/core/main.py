@@ -1,6 +1,6 @@
 
 from xo_connect5.models import Point
-from xo_connect5.models.boards import Board
+from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.pieces import PieceType
 from xo_connect5.models.users import OrderType
 
@@ -10,12 +10,14 @@ class ApplicationError(Exception):
         self.detail = detail
 
 
-def check_board_is_ready() -> bool:
+def check_board_is_ready(board: Board) -> bool:
+    if board.status not in [BoardStatus.READY, BoardStatus.STARTING]:
+        return False
     return True
 
 
 def put_piece(board: Board, order: OrderType, point: Point):
-    if not check_board_is_ready():
+    if not check_board_is_ready(board):
         raise ApplicationError(detail='board is not ready')
     board.pieces[point.column][point.raw] = PieceType.XG
     return
