@@ -29,7 +29,7 @@ def get_user_order(user: User, players: Players) -> Optional[OrderType]:
     return order
 
 
-@router.put('/')
+@router.patch('/')
 async def put_piece(user: User,
                     board: Board = Depends(_get_board),
                     point: Point = Depends()) -> Board:

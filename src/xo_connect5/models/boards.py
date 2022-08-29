@@ -2,7 +2,7 @@
 from enum import Enum
 
 from pydantic import BaseModel
-from xo_connect5.models.pieces import PieceType
+from xo_connect5.models.pieces import Pieces, PieceType
 from xo_connect5.models.users import Players
 
 
@@ -16,7 +16,7 @@ class BoardStatus(str, Enum):
 
 class Board(BaseModel):
     id: int
-    pieces: list[list[PieceType]]
+    pieces: Pieces = [[PieceType.NONE for j in range(10)] for i in range(10)]
     round: int = 0
     status: BoardStatus = BoardStatus.NOT_READY
     players = Players()
