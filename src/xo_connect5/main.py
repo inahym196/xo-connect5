@@ -3,12 +3,14 @@ import logging
 import uvicorn
 from fastapi import FastAPI
 
+from xo_connect5 import handlers
 from xo_connect5.routers import boards
 
 logger = logging.getLogger('uvicorn')
 
 app = FastAPI()
 app.include_router(router=boards.router, prefix='/api/v1/boards')
+handlers.include_handler(app)
 
 
 def main():
