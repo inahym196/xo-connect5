@@ -19,11 +19,6 @@ class User(BaseModel):
     name: str
 
 
-class Player(BaseModel):
-    user: User
-    order: Order
-
-
 class Players(BaseModel):
-    first: Optional[Player] = None
-    draw: Optional[Player] = None
+    first: Optional[User] = None
+    draw: Optional[User] = None
