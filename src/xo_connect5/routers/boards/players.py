@@ -1,4 +1,6 @@
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 from starlette.exceptions import HTTPException
 from xo_connect5.models.boards import Board
@@ -19,18 +21,24 @@ async def get_players(board: Board = Depends(_get_board)) -> Players:
     return board.players
 
 
+def get_player_from_order_in_board(order: OrderType, board: Board) -> Optional[Player]:
+    sitting_player_dict = board.players.dict().get(order)
+    if sitting_player_dict:
+        return Player(**sitting_player_dict)
+
+
 @router.put('/{order}', response_model=Players)
 async def join_player(order: OrderType, param: PlayersParam = Depends()) -> Players:
-    join_player, players = param.player, param.board.players
+    join_player, board = param.player, param.board
     if order == OrderType.NONE:
-        raise HTTPException(status_code=400, detail='request order is none')
+        raise HTTPException(status_code=400, detail='Request order is none')
 
-    sitting_player_dict = players.dict().get(order)
-    if sitting_player_dict:
-        raise HTTPException(status_code=409, detail='There is already other player')
+    board_player = get_player_from_order_in_board(order, param.board)
+    if board_player:
+        raise HTTPException(status_code=409, detail='Other player is on board')
 
-    param.board.players = players.copy(update={order: join_player}, deep=True)
-    return param.board.players
+    board.players = board.players.copy(update={order: join_player}, deep=True)
+    return board.players
 
 
 @router.delete('/{order}', response_model=Players)
@@ -39,12 +47,10 @@ async def leave_player(order: OrderType, param: PlayersParam = Depends()) -> Pla
     if order == OrderType.NONE:
         raise HTTPException(status_code=400, detail='request order is none')
 
-    sitting_player_dict = board.players.dict().get(order)
-    if not sitting_player_dict:
+    board_player = get_player_from_order_in_board(order, param.board)
+    if board_player is None:
         raise HTTPException(status_code=400, detail='There is no player')
-
-    sitting_player = Player(**sitting_player_dict)
-    if sitting_player != leave_player:
+    elif board_player != leave_player:
         raise HTTPException(status_code=400, detail='player does not match')
 
     board.players = board.players.copy(update={order: None})
