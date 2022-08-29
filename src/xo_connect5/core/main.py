@@ -13,7 +13,7 @@ def check_board_is_ready(board: Board) -> bool:
 
 
 def put_piece(board: Board, order: Order, point: Point):
-    if check_board_is_ready(board):
+    if not check_board_is_ready(board):
         raise ApplicationError(detail='board is not ready')
         ...
     board.pieces[point.column][point.raw] = PieceType.XG
