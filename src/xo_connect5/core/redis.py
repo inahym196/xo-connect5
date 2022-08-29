@@ -1,5 +1,6 @@
-from redis import StrictRedis
 from xo_connect5.models.users import Players, User
+
+from redis import StrictRedis
 
 
 class RedisClientError(Exception):
@@ -10,11 +11,6 @@ class RedisClientError(Exception):
 class RedisClient:
     def __init__(self) -> None:
         self._client = StrictRedis()
-
-    async def init_players(self, board_id: int) -> None:
-        result = self._client.hset(name=f'board{board_id}', key='players', value='_:_')
-        if result != 0:
-            raise RedisClientError(detail='cannot init players store')
 
     async def get_players(self, board_id: int) -> Players:
         players_bytes = self._client.hget(name=f'board{board_id}', key='players')
@@ -29,11 +25,6 @@ class RedisClient:
         if first_username == '_' and draw_username == '_':
             return Players(first=None, draw=None)
         return Players(first=User(name=first_username), draw=User(name=draw_username))
-
-
-async def init_players(board_id: int) -> None:
-    redis_client = RedisClient()
-    await redis_client.init_players(board_id)
 
 
 async def get_players_from_db(board_id: int) -> Players:

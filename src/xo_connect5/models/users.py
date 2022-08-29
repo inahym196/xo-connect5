@@ -15,11 +15,11 @@ class User(BaseModel):
     name: str
 
 
-class UserInDB(BaseModel):
+class Player(BaseModel):
     name: str
     order: OrderType = OrderType.NONE
 
 
 class Players(BaseModel):
-    first: Optional[User] = None
-    draw: Optional[User] = None
+    first: Optional[Player] = None
+    draw: Optional[Player] = None

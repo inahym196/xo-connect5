@@ -7,8 +7,7 @@ from xo_connect5.core.main import ApplicationError
 from xo_connect5.models import Point
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.pieces import Pieces
-from xo_connect5.models.users import OrderType, Players, User
-from xo_connect5.redis import get_players_from_db
+from xo_connect5.models.users import OrderType, Player, Players, User
 from xo_connect5.routers.boards.boards import boards
 
 router = APIRouter()
@@ -48,13 +47,10 @@ def get_user_order(user: User, players: Players) -> Optional[OrderType]:
 
 
 @router.put('/pieces')
-async def put_piece(
-        user: User,
-        players: Players = Depends(get_players_from_db),
-        board: Board = Depends(_get_board),
-        point: Point = Depends()
-) -> Board:
-    order = get_user_order(user, players)
+async def put_piece(user: User,
+                    board: Board = Depends(_get_board),
+                    point: Point = Depends()) -> Board:
+    order = get_user_order(user, board.players)
     if not order:
         raise HTTPException(status_code=401)
 
@@ -68,16 +64,16 @@ async def put_piece(
 
 
 @router.get('/players', response_model=Players)
-async def get_players(players: Players = Depends(get_players_from_db)) -> Players:
-    return players
+async def get_players(board: Board = Depends(_get_board)) -> Players:
+    return board.players
 
 
 @router.patch('/players', response_model=Players)
-async def join_player(
-        user: User,
-        order: OrderType,
-        players: Players = Depends(get_players_from_db),
-        board: Board = Depends(_get_board),
-) -> Players:
-
+async def join_player(player: Player = Depends(), board: Board = Depends(_get_board)) -> Players:
+    order = player.order
+    if order == OrderType.NONE:
+        raise HTTPException(status_code=400, detail='request order is none')
+    elif board.players.dict().get(order):
+        raise HTTPException(status_code=409, detail='There is already other player')
+    board.players = board.players.copy(update={order: player})
     return board.players
