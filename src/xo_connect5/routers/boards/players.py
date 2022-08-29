@@ -8,15 +8,15 @@ from xo_connect5.routers.boards.board import _get_board
 router = APIRouter()
 
 
-@router.get('/', response_model=Players)
-async def get_players(board: Board = Depends(_get_board)) -> Players:
-    return board.players
-
-
 class PlayersParam:
     def __init__(self, player: Player = Depends(), board: Board = Depends(_get_board)) -> None:
         self.player = player
         self.board = board
+
+
+@router.get('/', response_model=Players)
+async def get_players(board: Board = Depends(_get_board)) -> Players:
+    return board.players
 
 
 @router.put('/{order}', response_model=Players)
