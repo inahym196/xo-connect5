@@ -16,7 +16,7 @@ class User(BaseModel):
 
 
 class Player(BaseModel):
-    name: str
+    user: User
     order: OrderType = OrderType.NONE
 
 
