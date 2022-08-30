@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.requests import Request
-from starlette.responses import JSONResponse
+from fastapi.responses import JSONResponse
 
 from xo_connect5.exceptions.app import ApplicationError
 from xo_connect5.exceptions.pieces import PiecesError
