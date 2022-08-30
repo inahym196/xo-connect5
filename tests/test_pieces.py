@@ -31,15 +31,13 @@ def test_get_pieces(pieces: Pieces):
     assert response.json() == pieces
 
 
-def test_put_pieces(pieces: Pieces, board: Board):
+def test_put_pieces_fail_no_user():
     params = {'raw': 0, 'column': 0}
     data = {
         'user': {'name': 'first'},
         'order': {'type': 'first'}
     }
     response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
-    pieces[0][0] = PieceType.XG
-    board.pieces = pieces
 
-    assert response.status_code == 200
-    assert response.json() == board
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'There is no user on board'}
