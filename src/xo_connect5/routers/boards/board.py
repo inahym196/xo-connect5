@@ -1,5 +1,6 @@
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 from starlette.exceptions import HTTPException
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.routers.boards.boards import boards
@@ -23,3 +24,11 @@ async def get_board(board: Board = Depends(_get_board)) -> Board:
 @router.get('/status', response_model=BoardStatus)
 async def get_status(board: Board = Depends(_get_board)) -> BoardStatus:
     return board.status
+
+
+@router.delete('/', response_class=Response)
+async def delete_board(board_id: int) -> Response:
+    if len(boards.items) == 0:
+        raise HTTPException(status_code=404)
+    boards.items.pop()
+    return Response(status_code=204)
