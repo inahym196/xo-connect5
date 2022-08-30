@@ -3,10 +3,7 @@ from fastapi.exceptions import HTTPException
 from requests.models import Response
 from xo_connect5.models.boards import Board, Boards
 
-from tests import client
-
-http_exception_404 = HTTPException(status_code=404)
-http_exception_409 = HTTPException(status_code=409)
+from tests import client, http_exception_404, http_exception_409
 
 
 class TestBoards:
