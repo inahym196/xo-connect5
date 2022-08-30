@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from xo_connect5.models import Point
 from xo_connect5.models.boards import Board
 from xo_connect5.models.pieces import Pieces
-from xo_connect5.routers.boards.board import _get_board
+from xo_connect5.routers.boards.boards import _get_board
 from xo_connect5.routers.boards.players import PlayersParam
 
 router = APIRouter()
