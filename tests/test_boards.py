@@ -12,10 +12,13 @@ client = TestClient(app)
 
 
 @pytest.fixture
-def board():
-    players = Players(first=User(name='first'), draw=User(name='draw'))
-    board = Board(id=0, players=players, status=BoardStatus.STARTING)
-    return board
+def init_board():
+    _ = client.delete('/api/v1/boards/0')
+
+
+@pytest.fixture
+def ready_board():
+    ...
 
 
 class TestBoards:
@@ -38,8 +41,10 @@ class TestBoards:
 
 class TestBoard:
 
-    def test_get_board(self, board: Board):
+    def test_get_board(self):
         response: Response = client.get('/api/v1/boards/0/')
+        players = Players(first=User(name='first'), draw=User(name='draw'))
+        board = Board(id=0, players=players, status=BoardStatus.STARTING)
 
         assert response.status_code == 200
         assert response.json() == board
@@ -51,8 +56,10 @@ class TestBoard:
         assert response.status_code == exception.status_code
         assert response.json()['detail'] == exception.detail
 
-    def test_get_board_status(self, board: Board):
+    def test_get_board_status(self):
         response: Response = client.get('/api/v1/boards/0/status')
+        players = Players(first=User(name='first'), draw=User(name='draw'))
+        board = Board(id=0, players=players, status=BoardStatus.STARTING)
 
         assert response.status_code == 200
         assert response.json() == board.status
@@ -64,8 +71,10 @@ class TestBoard:
         assert response.status_code == exception.status_code
         assert response._content == b''
 
-    def test_post_board(self, board: Board):
+    def test_post_board(self):
         response: Response = client.post('/api/v1/boards/')
+        players = Players(first=User(name='first'), draw=User(name='draw'))
+        board = Board(id=0, players=players, status=BoardStatus.STARTING)
 
         assert response.status_code == 200
         assert response.json()['id'] == board.id
