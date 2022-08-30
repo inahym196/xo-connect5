@@ -69,20 +69,6 @@ class TestGetBoard:
         assert response.json() == board.status
 
 
-class TestDeleteBoard:
-    def test_delete_board_when_no_board(self, no_board):
-        response: Response = client.delete('/api/v1/boards/0')
-        assert response.status_code == http_exception_404.status_code
-        assert response.json()['detail'] == http_exception_404.detail
-
-    def test_delete_board_when_init_board(self, init_board):
-        response: Response = client.delete('/api/v1/boards/0')
-        exception = HTTPException(status_code=204)
-
-        assert response.status_code == exception.status_code
-        assert response._content == b''
-
-
 class TestPostBoard:
     def test_post_board_when_no_board(self, no_board):
         response: Response = client.post('/api/v1/boards/')
@@ -97,3 +83,17 @@ class TestPostBoard:
 
         assert response.status_code == http_exception_409.status_code
         assert response.json()['detail'] == http_exception_409.detail
+
+
+class TestDeleteBoard:
+    def test_delete_board_when_no_board(self, no_board):
+        response: Response = client.delete('/api/v1/boards/0')
+        assert response.status_code == http_exception_404.status_code
+        assert response.json()['detail'] == http_exception_404.detail
+
+    def test_delete_board_when_init_board(self, init_board):
+        response: Response = client.delete('/api/v1/boards/0')
+        exception = HTTPException(status_code=204)
+
+        assert response.status_code == exception.status_code
+        assert response._content == b''
