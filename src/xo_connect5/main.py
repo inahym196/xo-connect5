@@ -14,7 +14,7 @@ handlers.include_handler(app)
 
 
 def main():
-    uvicorn.run('src.xo_connect5.main:app', reload=True, port=8000)
+    uvicorn.run('src.xo_connect5.main:app', reload=True, port=8000, reload_dirs=['src'])
 
 
 if __name__ == '__main__':
