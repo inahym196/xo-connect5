@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from xo_connect5.exceptions.players import PlayersError
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.users import Order, OrderType, Players, User
-from xo_connect5.routers.boards.board import _get_board
+from xo_connect5.routers.boards.boards import _get_board
 
 router = APIRouter()
 
