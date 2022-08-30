@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter
-from starlette.exceptions import HTTPException
+from fastapi.exceptions import HTTPException
 from xo_connect5.models.boards import Board, Boards, BoardStatus
 from xo_connect5.models.users import Players, User
 

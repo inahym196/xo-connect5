@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
 from fastapi.responses import Response
-from starlette.exceptions import HTTPException
 from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.routers.boards.boards import boards
 
