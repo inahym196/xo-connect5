@@ -12,7 +12,7 @@ class PlayersParam:
     def __init__(self, user: User, order: Order, board: Board = Depends(_get_board)) -> None:
         self.user = user
         self.board = board
-        if order == OrderType.NONE:
+        if order.type == OrderType.NONE:
             raise PlayersError(status_code=400, detail='NONE is invalid orderType')
         self.order = order
 
