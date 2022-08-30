@@ -6,7 +6,7 @@ from xo_connect5.models.pieces import Pieces, PieceType
 from tests import client, http_exception_404
 
 
-class TestPieces:
+class TestGetPieces:
 
     def test_get_pieces_when_no_board(self, no_board):
         response: Response = client.get('/api/v1/boards/0/pieces/')
@@ -20,6 +20,8 @@ class TestPieces:
 
         assert response.json() == pieces
 
+
+class TestPutPieces:
     def test_put_pieces_when_no_board(self, no_board):
         params = {'raw': 0, 'column': 0}
         data = {
