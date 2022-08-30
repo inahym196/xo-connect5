@@ -162,3 +162,4 @@ cython_debug/
 .vscode
 docker/keycloak/mysql_data
 *.rdb
+.DS_Store
