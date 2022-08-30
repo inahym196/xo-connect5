@@ -42,7 +42,7 @@ class TestPieces:
         assert response.status_code == 400
         assert response.json()['detail'] == 'There is no user on board'
 
-    def test_put_pieces_when_user_unmatch(self, init_board):
+    def test_put_pieces_when_user_unmatch(self, ready_board):
         params = {'raw': 0, 'column': 0}
         data = {
             'user': {'name': 'hoge'},
