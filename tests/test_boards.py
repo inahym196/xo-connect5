@@ -1,27 +1,12 @@
 
-
-import pytest
 from fastapi.exceptions import HTTPException
-from fastapi.testclient import TestClient
 from requests.models import Response
-from xo_connect5.main import app
 from xo_connect5.models.boards import Board, Boards
 
-client = TestClient(app)
+from tests import client
 
 http_exception_404 = HTTPException(status_code=404)
 http_exception_409 = HTTPException(status_code=409)
-
-
-@pytest.fixture
-def no_board():
-    client.delete('/api/v1/boards/0')
-
-
-@pytest.fixture
-def init_board():
-    client.delete('/api/v1/boards/0')
-    client.post('/api/v1/boards/')
 
 
 class TestBoards:
