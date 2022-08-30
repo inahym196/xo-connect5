@@ -17,7 +17,7 @@ invalid_user = [
 ]
 
 
-class TestPlayers:
+class TestGetPlayers:
     def test_get_players_when_no_board(self, no_board):
         response: Response = client.get('/api/v1/boards/0/players/')
 
@@ -30,6 +30,8 @@ class TestPlayers:
         assert response.status_code == 200
         assert response.json() == Players()
 
+
+class TestPutPlayers:
     def test_put_players_when_no_board(self, no_board):
         response: Response = client.put('/api/v1/boards/0/players/')
 
@@ -64,6 +66,8 @@ class TestPlayers:
         assert response.status_code == exception.status_code
         assert response.json()['detail'] == exception.detail
 
+
+class TestDeletePlayers:
     @pytest.mark.parametrize('user, order', players_on_board)
     def test_delete_players_when_matched_user_exists(self, ready_board, user: User, order: Order):
         data = {'user': user.dict(), 'order': order.dict()}
