@@ -46,7 +46,7 @@ class TestGetBoard:
     def test_get_board_when_init_board(self, init_board):
         response: Response = client.get('/api/v1/boards/0/')
         assert response.status_code == 200
-        assert response.json() == init_board
+        assert response.json() == init_board_json
 
 
 class TestGetBoardStatus:
