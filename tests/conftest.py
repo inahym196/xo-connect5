@@ -6,14 +6,13 @@ from tests import client
 pytest.register_assert_rewrite('test.helpers')
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def no_board():
     client.delete('/api/v1/boards/0')
 
 
 @pytest.fixture
 def init_board():
-    client.delete('/api/v1/boards/0')
     client.post('/api/v1/boards/')
 
 
@@ -24,7 +23,7 @@ players_on_board = [
 
 
 @pytest.fixture
-def ready_board():
+def starting_board(init_board):
     client.delete('/api/v1/boards/0')
     client.post('/api/v1/boards/')
     for user, order in players_on_board:
