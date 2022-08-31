@@ -1,94 +1,74 @@
 
 import pytest
 from requests.models import Response
-from xo_connect5.exceptions.players import PlayersError
-from xo_connect5.models.users import Order, OrderType, Players, User
 
 from tests import client
 from tests.conftest import players_on_board
-from tests.helpers import assert_equal_http_exception_404
+from tests.helpers import assert_equal_players_exception
 
 valid_user = [
-    (User(name='first'), Order(type=OrderType.FIRST)),
-    (User(name='draw'), Order(type=OrderType.DRAW))
+    ({'name': 'first'}, {'type': 'first'}),
+    ({'name': 'draw'}, {'type': 'draw'}),
 ]
 
 invalid_user = [
-    (User(name='first'), Order(type=OrderType.NONE)),
+    ({'name': 'first'}, {'type': 'none'}),
+    ({'name': 'draw'}, {'type': 'none'}),
 ]
+
+init_players_json = {'first': None, 'draw': None}
 
 
 class TestGetPlayers:
-    def test_get_players_when_no_board(self, no_board):
-        response: Response = client.get('/api/v1/boards/0/players/')
-        assert_equal_http_exception_404(response)
-
     def test_get_players_when_init_board(self, init_board):
         response: Response = client.get('/api/v1/boards/0/players/')
-
         assert response.status_code == 200
-        assert response.json() == Players()
+        assert response.json() == init_players_json
 
 
 class TestPutPlayers:
-    def test_put_players_when_no_board(self, no_board):
-        response: Response = client.put('/api/v1/boards/0/players/')
-        assert_equal_http_exception_404(response)
-
     @pytest.mark.parametrize('user, order', valid_user)
-    def test_put_players_when_init_board(self, init_board, user: User, order: Order):
-        data = {'user': user.dict(), 'order': order.dict()}
+    def test_put_players_when_init_board(self, init_board, user, order):
+        data = {'user': user, 'order': order}
         response: Response = client.put('/api/v1/boards/0/players/', json=data)
-        players = Players()
-        players = players.copy(update={order.type: user})
 
+        players_json = init_players_json | {order['type']: user}
         assert response.status_code == 200
-        assert response.json() == players
+        assert response.json() == players_json
 
     @pytest.mark.parametrize('user, order', valid_user)
-    def test_put_players_when_other_user_exists(self, ready_board, user: User, order: Order):
-        data = {'user': user.dict(), 'order': order.dict()}
+    def test_put_players_when_other_user_exists(self, starting_board, user, order):
+        data = {'user': user, 'order': order}
         response: Response = client.put('/api/v1/boards/0/players/', json=data)
-        exception = PlayersError(status_code=409, detail='Other player is on board')
-
-        assert response.status_code == exception.status_code
-        assert response.json()['detail'] == exception.detail
+        assert_equal_players_exception(response, 409, 'Other player is on board')
 
     @pytest.mark.parametrize('user, order', invalid_user)
-    def test_put_players_when_invalid_order(self, init_board, user: User, order: Order):
-        data = {'user': user.dict(), 'order': order.dict()}
+    def test_put_players_when_invalid_order(self, init_board, user, order):
+        data = {'user': user, 'order': order}
         response: Response = client.put('/api/v1/boards/0/players/', json=data)
-        exception = PlayersError(status_code=400, detail='NONE is invalid orderType')
-
-        assert response.status_code == exception.status_code
-        assert response.json()['detail'] == exception.detail
+        assert_equal_players_exception(response, 400, 'NONE is invalid orderType')
 
 
 class TestDeletePlayers:
     @pytest.mark.parametrize('user, order', players_on_board)
-    def test_delete_players_when_matched_user_exists(self, ready_board, user: User, order: Order):
-        data = {'user': user.dict(), 'order': order.dict()}
+    def test_delete_players_when_matched_user_exists(self, starting_board, user, order):
+        data = {'user': user, 'order': order}
         response: Response = client.delete('/api/v1/boards/0/players/', json=data)
         rest_user, rest_order = list(filter(lambda x: x[0] != user and x[1] != order, players_on_board))[0]
-        players = Players().copy(update={rest_order.type: rest_user})
+        players_json = init_players_json | {rest_order['type']: rest_user}
 
         assert response.status_code == 200
-        assert response.json() == players
+        assert response.json() == players_json
 
     @pytest.mark.parametrize('user, order', valid_user)
-    def test_delete_players_when_no_user(self, init_board, user: User, order: Order):
-        data = {'user': user.dict(), 'order': order.dict()}
+    def test_delete_players_when_no_user(self, init_board, user, order):
+        data = {'user': user, 'order': order}
         response: Response = client.delete('/api/v1/boards/0/players/', json=data)
-        exception = PlayersError(status_code=400, detail='There is no user on board')
-
-        assert response.status_code == exception.status_code
-        assert response.json()['detail'] == exception.detail
+        assert_equal_players_exception(response, 400, detail='There is no user on board')
 
     @pytest.mark.parametrize('user, order', players_on_board)
-    def test_delete_players_when_unmatched_user(self, ready_board, user: User, order: Order):
-        data = {'user': {'name': 'unmatched_user'}, 'order': order.dict()}
+    def test_delete_players_when_unmatched_user(self, starting_board, user, order):
+        user['name'] = 'unmatched_user'
+        data = {'user': user, 'order': order}
         response: Response = client.delete('/api/v1/boards/0/players/', json=data)
-        exception = PlayersError(status_code=400, detail='User does not match')
-
-        assert response.status_code == exception.status_code
-        assert response.json()['detail'] == exception.detail
+        assert_equal_players_exception(response, 400, detail='User does not match')
