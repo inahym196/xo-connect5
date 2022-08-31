@@ -42,9 +42,4 @@ class TestPutPieces:
         assert response.json()['detail'] == 'There is no user on board'
 
     def test_put_pieces_when_user_unmatch(self, ready_board):
-        params = {'raw': 0, 'column': 0}
-        data = {
-            'user': {'name': 'hoge'},
-            'order': {'type': 'first'}
-        }
-        response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
+        ...
