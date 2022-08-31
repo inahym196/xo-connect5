@@ -1,7 +1,7 @@
 
 from fastapi.exceptions import HTTPException
 from requests.models import Response
-from xo_connect5.models.boards import Board, Boards
+from xo_connect5.models.boards import Board, Boards, BoardStatus
 
 from tests import client, http_exception_404, http_exception_409
 
@@ -54,6 +54,8 @@ class TestGetBoard:
         assert response.status_code == 200
         assert response.json() == board
 
+
+class TestGetBoardStatus:
     def test_get_board_status_when_no_board(self, no_board):
         response: Response = client.get('/api/v1/boards/0/status')
         exception = HTTPException(status_code=404)
@@ -63,10 +65,15 @@ class TestGetBoard:
 
     def test_get_board_status_when_init_board(self, init_board):
         response: Response = client.get('/api/v1/boards/0/status')
-        board = Board(id=0)
 
         assert response.status_code == 200
-        assert response.json() == board.status
+        assert response.json() == BoardStatus.WAITING
+
+    def test_get_board_status_when_two_players_exist(self, ready_board):
+        response: Response = client.get('/api/v1/boards/0/status')
+
+        assert response.status_code == 200
+        assert response.json() == BoardStatus.STARTING
 
 
 class TestPostBoard:
