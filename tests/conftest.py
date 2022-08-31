@@ -1,5 +1,4 @@
 import pytest
-from xo_connect5.models.users import Order, OrderType, User
 
 from tests import client
 
@@ -17,15 +16,13 @@ def init_board():
 
 
 players_on_board = [
-    (User(name='first'), Order(type=OrderType.FIRST)),
-    (User(name='draw'), Order(type=OrderType.DRAW))
+    ({'name': 'first'}, {'type': 'first'}),
+    ({'name': 'draw'}, {'type': 'draw'}),
 ]
 
 
 @pytest.fixture
 def starting_board(init_board):
-    client.delete('/api/v1/boards/0')
-    client.post('/api/v1/boards/')
     for user, order in players_on_board:
-        data = {'user': user.dict(), 'order': order.dict()}
+        data = {'user': user, 'order': order}
         client.put('/api/v1/boards/0/players/', json=data)
