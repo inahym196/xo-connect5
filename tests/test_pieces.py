@@ -50,3 +50,14 @@ class TestPutPieces:
         starting_board['pieces'] = pieces
         assert response.status_code == 200
         assert response.json() == starting_board
+
+    @pytest.mark.parametrize('raw, column', [(0, 0)])
+    def test_put_pieces_when_init_board(self, waiting_board, raw, column):
+        params = {'raw': raw, 'column': column}
+        data = {
+            'user': {'name': 'first'},
+            'order': {'type': 'first'}
+        }
+        response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
+        assert response.status_code == 500
+        assert response.json()['detail'] == '[app] board is not ready'
