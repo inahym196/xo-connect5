@@ -4,8 +4,9 @@ from requests.models import Response
 from xo_connect5.exceptions.players import PlayersError
 from xo_connect5.models.users import Order, OrderType, Players, User
 
-from tests import client, http_exception_404
+from tests import client
 from tests.conftest import players_on_board
+from tests.helpers import assert_equal_http_exception_404
 
 valid_user = [
     (User(name='first'), Order(type=OrderType.FIRST)),
@@ -20,9 +21,7 @@ invalid_user = [
 class TestGetPlayers:
     def test_get_players_when_no_board(self, no_board):
         response: Response = client.get('/api/v1/boards/0/players/')
-
-        assert response.status_code == http_exception_404.status_code
-        assert response.json()['detail'] == http_exception_404.detail
+        assert_equal_http_exception_404(response)
 
     def test_get_players_when_init_board(self, init_board):
         response: Response = client.get('/api/v1/boards/0/players/')
@@ -34,9 +33,7 @@ class TestGetPlayers:
 class TestPutPlayers:
     def test_put_players_when_no_board(self, no_board):
         response: Response = client.put('/api/v1/boards/0/players/')
-
-        assert response.status_code == http_exception_404.status_code
-        assert response.json()['detail'] == http_exception_404.detail
+        assert_equal_http_exception_404(response)
 
     @pytest.mark.parametrize('user, order', valid_user)
     def test_put_players_when_init_board(self, init_board, user: User, order: Order):

@@ -3,16 +3,15 @@
 from requests.models import Response
 from xo_connect5.models.pieces import Pieces, PieceType
 
-from tests import client, http_exception_404
+from tests import client
+from tests.helpers import assert_equal_http_exception_404
 
 
 class TestGetPieces:
 
     def test_get_pieces_when_no_board(self, no_board):
         response: Response = client.get('/api/v1/boards/0/pieces/')
-
-        assert response.status_code == http_exception_404.status_code
-        assert response.json()['detail'] == http_exception_404.detail
+        assert_equal_http_exception_404(response)
 
     def test_get_pieces_when_init_board(self, init_board):
         response: Response = client.get('/api/v1/boards/0/pieces/')
@@ -29,9 +28,7 @@ class TestPutPieces:
             'order': {'type': 'first'}
         }
         response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
-
-        assert response.status_code == http_exception_404.status_code
-        assert response.json()['detail'] == http_exception_404.detail
+        assert_equal_http_exception_404(response)
 
     def test_put_pieces_when_no_user(self, init_board):
         params = {'raw': 0, 'column': 0}
