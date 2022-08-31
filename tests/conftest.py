@@ -3,6 +3,8 @@ from xo_connect5.models.users import Order, OrderType, User
 
 from tests import client
 
+pytest.register_assert_rewrite('test.helpers')
+
 
 @pytest.fixture
 def no_board():
