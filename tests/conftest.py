@@ -12,9 +12,9 @@ BoardFixture = tuple[Response, dict[str, Any]]
 
 
 @pytest.fixture(autouse=True)
-def no_board() -> dict[str, Any]:
-    client.delete('/api/v1/boards/0')
-    expected = {'items': []}
+def no_board() -> list:
+    client.delete('/api/v1/boards/0/')
+    expected = []
     return expected
 
 
@@ -37,9 +37,10 @@ players_on_board = [
 ]
 
 
-@pytest.mark.parametrize('user, order', players_on_board)
-def waiting_board(init_board: BoardFixture, user: dict[str, str], order: dict[str, str]) -> BoardFixture:
+@pytest.fixture
+def waiting_draw_user_board(init_board: BoardFixture) -> BoardFixture:
     _, init_board_expected_json = init_board
+    user, order = {'name': 'first'}, {'type': 'first'}
     data = {'user': user, 'order': order}
     response = client.put('/api/v1/boards/0/players/', json=data)
     expected = init_board_expected_json | {'players': {order['type']: user}}
