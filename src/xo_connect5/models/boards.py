@@ -18,7 +18,3 @@ class Board(BaseModel):
     round: int = 0
     status: BoardStatus = BoardStatus.WAITING
     players: Players = Players()
-
-
-class Boards(BaseModel):
-    items: list[Board] = list()
