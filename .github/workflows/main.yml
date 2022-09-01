@@ -40,3 +40,19 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest --cov --junitxml=pytest.xml --cov-report=term-missing:skip-covered | tee pytest-coverage.txt
+    - name: Create Coverage Comment
+      id: coverageComment
+      uses: MishaKav/pytest-coverage-comment@main
+      with:
+        pytest-coverage-path: pytest-coverage.txt
+        junitxml-path: ./pytest.xml
+    - name: Create Coverage Badge
+      uses: schneegans/dynamic-badges-action@v1.3.0
+      with:
+        auth: ${{ secrets.BADGE_GIST }}
+        gistID: e4a0ff4f337e6d7b3f3bf23c179f3170
+        filename: pytest-coverage-comment.json
+        label: Coverage
+        message: ${{ steps.coverageComment.outputs.coverage }}
+        color: ${{ steps.coverageComment.outputs.color }}
+        namedLogo: python
