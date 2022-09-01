@@ -6,7 +6,7 @@ from xo_connect5.models.users import Players, User
 
 router = APIRouter()
 
-boards = list()
+boards: list[Board] = list()
 
 # dev-init
 _first_player = User(name='first')
