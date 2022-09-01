@@ -17,10 +17,10 @@ async def get_pieces(board: Board = Depends(_get_board)) -> Pieces:
 
 
 @router.put('/')
-async def put_piece(point: Point = Depends(), players_param: PlayersParam = Depends()) -> Board:
+async def put_piece(point: Point = Depends(), players_param: PlayersParam = Depends()) -> Pieces:
     order, board = players_param.order, players_param.board
     _ = players_param.get_matched_user()
 
     core.put_piece(board, order, point)
 
-    return board
+    return board.pieces
