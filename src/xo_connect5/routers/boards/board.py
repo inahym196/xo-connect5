@@ -3,14 +3,14 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import Response
 from xo_connect5.models.boards import Board, BoardStatus
-from xo_connect5.routers.boards import boards
+from xo_connect5.routers.boards.boards import boards
 
 router = APIRouter()
 
 
 async def _get_board(board_id: int) -> Board:
     try:
-        board = boards.items[board_id]
+        board = boards[board_id]
     except Exception:
         raise HTTPException(status_code=404)
     return board
@@ -28,7 +28,7 @@ async def get_board_status(board: Board = Depends(_get_board)) -> BoardStatus:
 
 @router.delete('/', response_class=Response)
 async def delete_board(board_id: int) -> Response:
-    if len(boards.items) == 0:
+    if len(boards) == 0:
         raise HTTPException(status_code=404)
-    boards.items.pop()
+    boards.pop()
     return Response(status_code=204)
