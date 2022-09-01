@@ -1,6 +1,4 @@
-
-
-import copy
+from typing import Any
 
 import pytest
 from requests.models import Response
@@ -25,7 +23,7 @@ class TestPutPieces:
             'user': {'name': 'first'},
             'order': {'type': 'first'}
         }
-        response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
+        response: Response = client.put('/api/v1/boards/0/pieces/', params=params, json=data)
         assert_equal_players_exception(response, 400, detail='There is no user on board')
 
     def test_put_pieces_when_unmatched_user(self, starting_board):
@@ -34,30 +32,24 @@ class TestPutPieces:
             'user': {'name': 'unmatched_name'},
             'order': {'type': 'first'}
         }
-        response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
+        response: Response = client.put('/api/v1/boards/0/pieces/', params=params, json=data)
         assert_equal_players_exception(response, 400, detail='User does not match')
 
     @pytest.mark.parametrize('raw, column', [(0, 0)])
-    def test_put_pieces_when_matched_user(self, starting_board, raw, column):
+    def test_put_pieces_when_matched_user(self, starting_board: dict[str, Any], raw, column):
+        expected_json = starting_board['pieces']
         params = {'raw': raw, 'column': column}
-        data = {
-            'user': {'name': 'first'},
-            'order': {'type': 'first'}
-        }
-        response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
-        pieces = copy.copy(init_pieces)
-        pieces[column][raw] = 'xg'
-        starting_board['pieces'] = pieces
+        data = {'user': {'name': 'first'}, 'order': {'type': 'first'}}
+        response: Response = client.put('/api/v1/boards/0/pieces/', params=params, json=data)
+
+        expected_json[column][raw] = 'xg'
         assert response.status_code == 200
-        assert response.json() == starting_board
+        assert response.json() == expected_json
 
     @pytest.mark.parametrize('raw, column', [(0, 0)])
-    def test_put_pieces_when_init_board(self, waiting_board, raw, column):
+    def test_put_pieces_when_waiting_board(self, waiting_draw_user_board, raw, column):
         params = {'raw': raw, 'column': column}
-        data = {
-            'user': {'name': 'first'},
-            'order': {'type': 'first'}
-        }
-        response: Response = client.patch('/api/v1/boards/0/pieces/', params=params, json=data)
+        data = {'user': {'name': 'first'}, 'order': {'type': 'first'}}
+        response: Response = client.put('/api/v1/boards/0/pieces/', params=params, json=data)
         assert response.status_code == 500
         assert response.json()['detail'] == '[app] board is not ready'
