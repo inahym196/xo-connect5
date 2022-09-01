@@ -3,18 +3,17 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import Response
 from xo_connect5.models.boards import Board, Boards, BoardStatus
-from xo_connect5.models.users import Players, User
 
 router = APIRouter()
 
 boards = Boards()
 
 # dev-init
-_first_player = User(name='first')
-_draw_player = User(name='draw')
-_players = Players(first=_first_player, draw=_draw_player)
-_board = Board(id=0, players=_players, status=BoardStatus.STARTING)
-boards.items.append(_board)
+# _first_player = User(name='first')
+# _draw_player = User(name='draw')
+# _players = Players(first=_first_player, draw=_draw_player)
+# _board = Board(id=0, players=_players, status=BoardStatus.STARTING)
+# boards.items.append(_board)
 
 
 @router.get('/')
