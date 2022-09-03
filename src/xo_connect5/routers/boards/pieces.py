@@ -38,31 +38,36 @@ def is_your_turn(turn: int, order_type: OrderType) -> bool:
     return False
 
 
-class Vector:
-    def __init__(self, x: int, y: int):
-        self.unit_x: int = -1
-        self.unit_y: int = -1
-        self.origin_x = x
-        self.origin_y = y
-        self.grow_reset()
-        self.is_reverse: bool = False
+class UnitVector:
+    def __init__(self) -> None:
+        self.x: int = -1
+        self.y: int = -1
 
     def rotate_end(self) -> bool:
-        if (self.unit_x, self.unit_y) == (0, 0):
+        if (self.x, self.y) == (0, 0):
             return False
         return True
 
-    def grow_reset(self):
-        self.raw = self.origin_x + self.unit_x
-        self.column = self.origin_y + self.unit_y
-
     def rotate(self) -> None:
-        if self.unit_x != 1:
-            self.unit_x += 1
-        elif self.unit_x == 1:
-            self.unit_x = -1
-            self.unit_y += 1
-        self.grow_reset()
+        self.reverse()
+        if self.x != 1:
+            self.x += 1
+        elif self.x == 1:
+            self.x = -1
+            self.y += 1
+
+    def reverse(self) -> None:
+        self.x = -self.x
+        self.y = -self.y
+
+
+class Vector:
+    def __init__(self, put_point: Point, unit_vector: UnitVector):
+        self.origin_x = put_point.raw
+        self.origin_y = put_point.column
+        self.unit_vector = unit_vector
+        self.raw = self.origin_x + self.unit_vector.x
+        self.column = self.origin_y + self.unit_vector.y
 
     def is_in_board(self) -> bool:
         if 0 <= self.raw < 10 and 0 <= self.column < 10:
@@ -70,14 +75,8 @@ class Vector:
         return False
 
     def grow(self) -> None:
-        self.raw += self.unit_x
-        self.column += self.unit_y
-
-    def reverse(self) -> None:
-        self.is_reverse = True
-        self.unit_x = -self.unit_x
-        self.unit_y = -self.unit_y
-        self.grow_reset()
+        self.raw += self.unit_vector.x
+        self.column += self.unit_vector.y
 
     @property
     def norm(self) -> int:
@@ -87,38 +86,39 @@ class Vector:
 class LineCounter:
     def __init__(self, pieces: Pieces, put_point: Point, piece_type: PieceType) -> None:
         self.pieces = pieces
-        self.vector = Vector(x=put_point.raw, y=put_point.column)
+        self.unit_vector = UnitVector()
         self.piece_type = piece_type
+        self.put_point = put_point
 
-    def count_harf_line(self) -> int:
-        while self.vector.is_in_board():
-            logger.info(f'      vector({self.vector.column},{self.vector.raw}) is in board.')
-            check_piece = self.pieces[self.vector.column][self.vector.raw]
+    def count_half_line(self) -> int:
+        vector = Vector(self.put_point, self.unit_vector)
+        logger.info(f'  unit_vector {self.unit_vector.y,self.unit_vector.x}, vector{vector.column,vector.raw}')
+        while vector.is_in_board():
+            logger.info(f'    vector({vector.column},{vector.raw}) is in board.')
+            check_piece = self.pieces[vector.column][vector.raw]
             if 'g' in self.piece_type and check_piece in ['xg', 'og', 'xp'] or \
                     'p' in self.piece_type and check_piece in ['op', 'xp', 'og']:
-                logger.info(f'      vector({self.vector.column},{self.vector.raw}) piece is ({check_piece}). grow')
-                self.vector.grow()
+                logger.info(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". grow.')
+                vector.grow()
             else:
+                logger.info(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". break.')
                 break
-        return self.vector.norm
+        return vector.norm
 
     def count_line(self) -> int:
-        line = self.count_harf_line()
-        logger.info(f'    harf line is {line}. reverse')
-        self.vector.reverse()
-        line += self.count_harf_line()
-        logger.info(f'    full line is {line}. reverse')
-        self.vector.reverse()
+        line: int = 1
+        line += self.count_half_line()
+        self.unit_vector.reverse()
+        line += self.count_half_line()
+        logger.info(f'  full line is {line}. unit_vector rotate.')
         return line
 
     def lined_up_five(self) -> bool:
-        count = 0
-        while self.vector.rotate_end() and count < 10:
-            count += 1
+        while self.unit_vector.rotate_end():
             line = self.count_line()
-            if line >= 4:
+            if line >= 5:
                 return True
-            self.vector.rotate()
+            self.unit_vector.rotate()
         return False
 
 
@@ -132,8 +132,10 @@ def get_connect5_winner(board: Board) -> Optional[OrderType]:
         logger.info('not lined up five.')
         return
     elif 'g' in piece_type:
+        logger.info(f'lined up five! {OrderType.FIRST} win!')
         return OrderType.FIRST
     elif 'p' in piece_type:
+        logger.info(f'lined up five! {OrderType.DRAW} win!')
         return OrderType.DRAW
 
 
