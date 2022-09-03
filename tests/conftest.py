@@ -23,7 +23,7 @@ def init_board() -> BoardFixture:
     response = client.post('/api/v1/boards/')
     expected = {
         'id': 0,
-        'pieces': [['_' for j in range(10)] for i in range(10)],
+        'pieces': [['' for j in range(10)] for i in range(10)],
         'turn': 0,
         'status': 'waiting',
         'players': {'first': None, 'draw': None},
