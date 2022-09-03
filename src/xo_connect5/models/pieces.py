@@ -1,18 +1,18 @@
-from enum import Enum
 
-from pydantic import BaseModel
+from typing import Literal
 
+from pydantic import BaseModel, Field
+from typing_extensions import TypeAlias
 
-class PieceType(str, Enum):
-    XP = 'xp'
-    OP = 'op'
-    XG = 'xg'
-    OG = 'og'
-    NONE = '_'
+NonePieceType: TypeAlias = Literal['']
+PurplePieceType: TypeAlias = Literal['xp', 'op']
+GreenPieceType: TypeAlias = Literal['xg', 'og']
+PieceType: TypeAlias = Literal[PurplePieceType, GreenPieceType, NonePieceType]
+Pieces: TypeAlias = list[list[PieceType]]
 
-
-class Piece(BaseModel):
-    type: PieceType
+none_piece_type: NonePieceType = ''
 
 
-Pieces = list[list[PieceType]]
+class Point(BaseModel):
+    raw: int = Field(ge=0, lt=10)
+    column: int = Field(ge=0, lt=10)
