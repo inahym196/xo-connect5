@@ -38,6 +38,7 @@ class TestPutPieces:
 
         expected_json['pieces'][column][raw] = 'xg'
         expected_json['turn'] = 1
+        expected_json['last_put_point'] = {'raw': raw, 'column': column}
         assert response.status_code == 200
         assert response.json() == expected_json
 
