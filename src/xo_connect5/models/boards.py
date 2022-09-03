@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel
-from xo_connect5.models.pieces import Pieces, PieceType
+from xo_connect5.models.pieces import Pieces, PieceType, Point
 from xo_connect5.models.users import OrderType, Players
 
 
@@ -20,3 +20,4 @@ class Board(BaseModel):
     status: BoardStatus = BoardStatus.WAITING
     players: Players = Players()
     winner: Optional[OrderType] = None
+    last_put_point: Optional[Point] = None

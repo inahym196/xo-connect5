@@ -3,9 +3,8 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends
 from xo_connect5.exceptions.pieces import PiecesError
-from xo_connect5.models import Point
 from xo_connect5.models.boards import Board, BoardStatus
-from xo_connect5.models.pieces import PieceType
+from xo_connect5.models.pieces import PieceType, Point
 from xo_connect5.models.users import OrderType
 from xo_connect5.routers.boards.players import PlayersParam
 
@@ -37,6 +36,7 @@ def is_your_turn(turn: int, order_type: OrderType) -> bool:
 
 
 def get_connect5_winner(board: Board) -> Optional[OrderType]:
+
     return
 
 
@@ -56,6 +56,7 @@ async def put_piece(point: Point = Depends(), players_param: PlayersParam = Depe
     board.pieces[point.column][point.raw] = piece_type
     board.winner = get_connect5_winner(board)
     board.turn += 1
+    board.last_put_point = point
     if board.winner:
         board.status = BoardStatus.END
     return board
