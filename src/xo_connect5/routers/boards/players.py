@@ -40,9 +40,9 @@ async def join_player(param: PlayersParam = Depends()) -> Board:
     if param.exists_user_in_board():
         raise PlayersError(status_code=409, detail='Other player is on board')
 
-    param.board.players = param.board.players.copy(update={order.type: join_user}, deep=True)
-    if param.board.players.first and param.board.players.draw:
-        param.board.status = BoardStatus.STARTING
+    board.players = board.players.copy(update={order.type: join_user}, deep=True)
+    if board.players.first and board.players.draw:
+        board.status = BoardStatus.STARTING
     return param.board
 
 
