@@ -15,6 +15,6 @@ class BoardStatus(str, Enum):
 class Board(BaseModel):
     id: int
     pieces: Pieces = [[PieceType.NONE for j in range(10)] for i in range(10)]
-    round: int = 0
+    turn: int = 0
     status: BoardStatus = BoardStatus.WAITING
     players: Players = Players()
