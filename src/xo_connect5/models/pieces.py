@@ -8,7 +8,7 @@ class PieceType(str, Enum):
     OP = 'op'
     XG = 'xg'
     OG = 'og'
-    NONE = '_'
+    NONE = ''
 
 
 class Piece(BaseModel):
