@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends
 from xo_connect5.exceptions.players import PlayersError
 from xo_connect5.models.boards import Board, BoardStatus
-from xo_connect5.models.users import Order, OrderType, User
+from xo_connect5.models.users import Order, User
 from xo_connect5.routers.boards.board import _get_board
 
 router = APIRouter()
@@ -12,12 +12,11 @@ class PlayersParam:
     def __init__(self, user: User, order: Order, board: Board = Depends(_get_board)) -> None:
         self.user = user
         self.board = board
-        if order.type == OrderType.NONE:
-            raise PlayersError(status_code=400, detail='NONE is invalid orderType')
         self.order = order
 
     def get_matched_user(self) -> User:
-        user_in_board_dict = self.board.players.dict().get(self.order.type)
+        players_in_board_dict = self.board.players.dict()
+        user_in_board_dict = players_in_board_dict.get(self.order.type)
         if user_in_board_dict is None:
             raise PlayersError(status_code=400, detail='There is no user on board')
 
