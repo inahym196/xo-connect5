@@ -19,4 +19,4 @@ class Board(BaseModel):
     turn: int = 0
     status: BoardStatus = BoardStatus.WAITING
     players: Players = Players()
-    winner: Optional[OrderType]
+    winner: Optional[OrderType] = None
