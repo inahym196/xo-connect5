@@ -8,11 +8,10 @@ from pydantic import BaseModel
 class OrderType(str, Enum):
     FIRST = 'first'
     DRAW = 'draw'
-    NONE = 'none'
 
 
 class Order(BaseModel):
-    type: OrderType = OrderType.NONE
+    type: OrderType
 
 
 class User(BaseModel):
