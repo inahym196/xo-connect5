@@ -1,9 +1,10 @@
 
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel
 from xo_connect5.models.pieces import Pieces, PieceType
-from xo_connect5.models.users import Players
+from xo_connect5.models.users import OrderType, Players
 
 
 class BoardStatus(str, Enum):
@@ -18,3 +19,4 @@ class Board(BaseModel):
     turn: int = 0
     status: BoardStatus = BoardStatus.WAITING
     players: Players = Players()
+    winner: Optional[OrderType]
