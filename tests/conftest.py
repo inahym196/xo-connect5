@@ -24,7 +24,7 @@ def init_board() -> BoardFixture:
     expected = {
         'id': 0,
         'pieces': [['_' for j in range(10)] for i in range(10)],
-        'round': 0,
+        'turn': 0,
         'status': 'waiting',
         'players': {'first': None, 'draw': None},
     }
