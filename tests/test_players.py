@@ -30,12 +30,6 @@ class TestPutPlayers:
         response: Response = client.put('/api/v1/boards/0/players/', json=data)
         assert_equal_players_exception(response, 409, 'Other player is on board')
 
-    @pytest.mark.parametrize('user', [{'name': 'first'}, {'name': 'draw'}])
-    def test_put_players_when_invalid_order(self, init_board, user: dict[str, str]):
-        data = {'user': user, 'order': {'type': 'none'}}
-        response: Response = client.put('/api/v1/boards/0/players/', json=data)
-        assert_equal_players_exception(response, 400, 'NONE is invalid orderType')
-
 
 class TestDeletePlayers:
     @pytest.mark.parametrize('order', [{'type': 'first'}, {'type': 'draw'}])
