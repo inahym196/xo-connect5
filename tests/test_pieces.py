@@ -37,6 +37,7 @@ class TestPutPieces:
         response: Response = client.put('/api/v1/boards/0/pieces/', params=params, json=data)
 
         expected_json['pieces'][column][raw] = 'xg'
+        expected_json['turn'] = 1
         assert response.status_code == 200
         assert response.json() == expected_json
 
@@ -46,4 +47,4 @@ class TestPutPieces:
         data = {'user': {'name': 'first'}, 'order': {'type': 'first'}}
         response: Response = client.put('/api/v1/boards/0/pieces/', params=params, json=data)
         assert response.status_code == 404
-        assert response.json()['detail'] == 'board is not ready'
+        assert response.json()['detail'] == 'Board is not ready'
