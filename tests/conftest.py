@@ -27,6 +27,7 @@ def init_board() -> BoardFixture:
         'turn': 0,
         'status': 'waiting',
         'players': {'first': None, 'draw': None},
+        'winner': None,
     }
     return response, expected
 
