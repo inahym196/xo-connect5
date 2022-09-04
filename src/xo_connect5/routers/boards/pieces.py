@@ -1,4 +1,5 @@
 import logging
+from copy import copy
 from math import floor
 from typing import Optional
 
@@ -40,7 +41,7 @@ def is_your_turn(turn: int, order_type: OrderType) -> bool:
     return False
 
 
-class UnitVector:
+class UnitSquareVector:
     def __init__(self) -> None:
         self.x: int = -1
         self.y: int = -1
@@ -51,7 +52,6 @@ class UnitVector:
         return True
 
     def rotate(self) -> None:
-        self.reverse()
         if self.x != 1:
             self.x += 1
         elif self.x == 1:
@@ -64,7 +64,7 @@ class UnitVector:
 
 
 class Vector:
-    def __init__(self, put_point: Point, unit_vector: UnitVector):
+    def __init__(self, put_point: Point, unit_vector: UnitSquareVector):
         self.origin_x = put_point.raw
         self.origin_y = put_point.column
         self.unit_vector = unit_vector
@@ -88,39 +88,41 @@ class Vector:
 class LineCounter:
     def __init__(self, pieces: Pieces, put_point: Point, piece_type: PieceType) -> None:
         self.pieces = pieces
-        self.unit_vector = UnitVector()
+        self.unit_vector = UnitSquareVector()
         self.piece_type = piece_type
         self.put_point = put_point
 
-    def count_half_line(self) -> int:
-        vector = Vector(self.put_point, self.unit_vector)
-        logger.debug(f'  unit_vector {self.unit_vector.y,self.unit_vector.x}, vector{vector.column,vector.raw}')
+    def count_half_line(self, unit_vector: UnitSquareVector) -> int:
+        vector = Vector(self.put_point, unit_vector)
+        logger.debug(f'  vector{vector.raw,vector.column}')
         while vector.is_in_board():
-            logger.debug(f'    vector({vector.column},{vector.raw}) is in board.')
+            logger.debug(f'    vector({vector.raw},{vector.column}) is in board.')
             check_piece = self.pieces[vector.column][vector.raw]
             if 'g' in self.piece_type and check_piece in ['xg', 'og', 'xp'] or \
                     'p' in self.piece_type and check_piece in ['op', 'xp', 'og']:
-                logger.debug(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". grow.')
+                logger.debug(f'    vector({vector.raw},{vector.column}) piece is "{check_piece}". grow.')
                 vector.grow()
             else:
-                logger.debug(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". break.')
+                logger.debug(f'    vector({vector.raw},{vector.column}) piece is "{check_piece}". break.')
                 break
         return vector.norm
 
-    def count_line(self) -> int:
+    def count_line(self, unit_vector: UnitSquareVector) -> int:
         line: int = 1
-        line += self.count_half_line()
-        self.unit_vector.reverse()
-        line += self.count_half_line()
-        logger.debug(f'  full line is {line}. unit_vector rotate.')
+        line += self.count_half_line(unit_vector)
+        unit_vector.reverse()
+        line += self.count_half_line(unit_vector)
+        logger.debug(f'  full line is {line}.')
         return line
 
     def lined_up_five(self) -> bool:
         while self.unit_vector.rotate_end():
-            line = self.count_line()
+            logger.debug(f'create unit_vector{self.unit_vector.x,self.unit_vector.y}')
+            line = self.count_line(copy(self.unit_vector))
             if line >= 5:
                 return True
             self.unit_vector.rotate()
+            logger.debug('rotate.')
         return False
 
 
@@ -129,7 +131,7 @@ def get_connect5_winner(board: Board) -> Optional[OrderType]:
     if put_point is None:
         raise
     piece_type = pieces[put_point.column][put_point.raw]
-    logger.debug(f'Put {piece_type} piece in {put_point.column,put_point.raw}')
+    logger.debug(f'Put {piece_type} piece in {put_point.raw,put_point.column}')
     line_counter = LineCounter(pieces, put_point, piece_type)
     if not line_counter.lined_up_five():
         logger.debug('not lined up five.')
