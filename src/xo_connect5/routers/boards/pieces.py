@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging
 from math import floor
 from typing import Optional
 
@@ -8,9 +8,11 @@ from xo_connect5.models.boards import Board, BoardStatus
 from xo_connect5.models.pieces import Pieces, PieceType, Point, none_piece_type
 from xo_connect5.models.users import OrderType
 from xo_connect5.routers.boards.players import PlayersParam
+from xo_connect5.utils.logger import setup_logger
 
 router = APIRouter()
-logger = getLogger('uvicorn').getChild(__name__)
+
+logger = setup_logger(__name__, logging.DEBUG)
 
 
 def get_piece_type(turn: int, order_type: OrderType) -> PieceType:
@@ -92,16 +94,16 @@ class LineCounter:
 
     def count_half_line(self) -> int:
         vector = Vector(self.put_point, self.unit_vector)
-        logger.info(f'  unit_vector {self.unit_vector.y,self.unit_vector.x}, vector{vector.column,vector.raw}')
+        logger.debug(f'  unit_vector {self.unit_vector.y,self.unit_vector.x}, vector{vector.column,vector.raw}')
         while vector.is_in_board():
-            logger.info(f'    vector({vector.column},{vector.raw}) is in board.')
+            logger.debug(f'    vector({vector.column},{vector.raw}) is in board.')
             check_piece = self.pieces[vector.column][vector.raw]
             if 'g' in self.piece_type and check_piece in ['xg', 'og', 'xp'] or \
                     'p' in self.piece_type and check_piece in ['op', 'xp', 'og']:
-                logger.info(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". grow.')
+                logger.debug(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". grow.')
                 vector.grow()
             else:
-                logger.info(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". break.')
+                logger.debug(f'    vector({vector.column},{vector.raw}) piece is "{check_piece}". break.')
                 break
         return vector.norm
 
@@ -110,7 +112,7 @@ class LineCounter:
         line += self.count_half_line()
         self.unit_vector.reverse()
         line += self.count_half_line()
-        logger.info(f'  full line is {line}. unit_vector rotate.')
+        logger.debug(f'  full line is {line}. unit_vector rotate.')
         return line
 
     def lined_up_five(self) -> bool:
@@ -127,15 +129,16 @@ def get_connect5_winner(board: Board) -> Optional[OrderType]:
     if put_point is None:
         raise
     piece_type = pieces[put_point.column][put_point.raw]
+    logger.debug(f'Put {piece_type} piece in {put_point.column,put_point.raw}')
     line_counter = LineCounter(pieces, put_point, piece_type)
     if not line_counter.lined_up_five():
-        logger.info('not lined up five.')
+        logger.debug('not lined up five.')
         return
     elif 'g' in piece_type:
-        logger.info(f'lined up five! {OrderType.FIRST} win!')
+        logger.debug(f'lined up five! {OrderType.FIRST} win!')
         return OrderType.FIRST
     elif 'p' in piece_type:
-        logger.info(f'lined up five! {OrderType.DRAW} win!')
+        logger.debug(f'lined up five! {OrderType.DRAW} win!')
         return OrderType.DRAW
 
 
@@ -153,8 +156,6 @@ async def put_piece(point: Point = Depends(), players_param: PlayersParam = Depe
     if board.pieces[point.column][point.raw] != none_piece_type:
         raise PiecesError(status_code=404, detail='Piece is already exist')
 
-    logger.info('===============================')
-    logger.info(f'{order.type} put {piece_type} piece in {point.column,point.raw}')
     board.pieces[point.column][point.raw] = piece_type
     board.last_put_point = point
     board.winner = get_connect5_winner(board)
